@@ -1,0 +1,11 @@
+language:
+services:
+build:
+  pre_ci_boot:
+    image_name: registry.access.redhat.com/rhel6 
+    image_tag: latest 
+    pull: true
+
+  ci:
+    - echo "hello world"
+
