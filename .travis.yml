@@ -1,0 +1,14 @@
+services: docker
+env:
+  - distro: rhel6
+    init: /sbin/init
+    run_opts: ""
+
+before_install:
+  - 'docker pull registry.access.redhat.com/rhel6'
+  - container_id=$(mktemp)
+  - 'docker run --detach registry.access.redhat.com/rhel6 "${init}" > "${container_id}"'
+  - 'docker exec --tty "$(cat ${container_id})" env TERM=xterm echo "hello world"'
+  - exit 0
+
+
