@@ -10,10 +10,8 @@ before_install:
 script:
 - container_id=$(mktemp)
 - docker run --detach registry.access.redhat.com/$distro "${init}" > "${container_id}"
-- docker exec --tty "$(cat ${container_id})" env TERM=xterm echo "hello world"
-- docker exec --tty "$(cat ${container_id})" env TERM=xterm RH_PASS=$RH_PASS subscription-manager register --username jonathan-9 --password $RH_PASS
+- docker exec --tty "$(cat ${container_id})" env TERM=xterm RH_PASS=$RH_PASS subscription-manager register --username jonathan-9 --password $RH_PASS --autosubscribe
 - docker exec --tty "$(cat ${container_id})" env TERM=xterm yum install -y nmap 
-- exit 0
 
 after_script:
 - docker exec --tty "$(cat ${container_id})" env TERM=xterm subscription-manager unregister 
