@@ -29,7 +29,7 @@ script:
 after_success:
   - docker commit -m "Ansiblized" -a "Jonathan Davila" $(cat ${container_id}) nousdefions/$distro:latest 
   - docker login --username nousdefions --password $DOCKERHUB_PASS
-  - docker push nousdefions/$distro
+  - docker push nousdefions/ansible_$distro
 
 after_script:
   - docker exec --tty "$(cat ${container_id})" env TERM=xterm subscription-manager unregister 
