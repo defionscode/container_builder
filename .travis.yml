@@ -2,22 +2,22 @@ services: docker
 env:
   matrix:
     - distro: rhel6
+      epel: "https://dl.fedoraproject.org/pub/epel/epel-release-latest-6.noarch.rpm"
       init: "/sbin/init"
       run_opts: ''
 before_install:
 - docker pull registry.access.redhat.com/$distro
 
 script:
-- epel="https://dl.fedoraproject.org/pub/epel/epel-release-latest-6.noarch.rpm"
 - container_id=$(mktemp)
 
 - docker run --detach registry.access.redhat.com/$distro "${init}" > "${container_id}"
 
-- docker exec --tty "$(cat ${container_id})" env TERM=xterm RH_PASS=$RH_PASS bash -c 
+- docker exec --tty "$(cat ${container_id})" env TERM=xterm $RH_PASS bash -c 
   "subscription-manager register --username $RH_USER --password $RH_PASS --autosubscribe; (exit $?)"
 
-- docker exec --tty "$(cat ${container_id})" env TERM=xterm bash -c 
-  'yum install -y $epel; (exit $?)'
+- docker exec --tty "$(cat ${container_id})" env TERM=xterm epel=$epel bash -c 
+  "yum install -y $epel; (exit $?)"
 
 - docker exec --tty "$(cat ${container_id})" env TERM=xterm bash -c
   'yum --disableplugin=fastestmirror -y --enablerepo=epel-testing install ansible &&
