@@ -8,11 +8,29 @@ before_install:
 - docker pull registry.access.redhat.com/$distro
 
 script:
+- epel="https://dl.fedoraproject.org/pub/epel/epel-release-latest-6.noarch.rpm"
 - container_id=$(mktemp)
+
 - docker run --detach registry.access.redhat.com/$distro "${init}" > "${container_id}"
-- docker exec --tty "$(cat ${container_id})" env TERM=xterm RH_PASS=$RH_PASS bash -c 'subscription-manager register --username jonathan-9 --password $RH_PASS --autosubscribe; (exit $?)'
-- docker exec --tty "$(cat ${container_id})" env TERM=xterm bash -c 'yum install -y nmap; (exit $?)'
+
+- docker exec --tty "$(cat ${container_id})" env TERM=xterm RH_PASS=$RH_PASS bash -c 
+  'subscription-manager register --username $RH_USER --password $RH_PASS --autosubscribe; (exit $?)'
+
+- docker exec --tty "$(cat ${container_id})" env TERM=xterm bash -c 
+  'yum install -y $epel; (exit $?)'
+
+- docker exec --tty "$(cat ${container_id})" env TERM=xterm bash -c
+  'yum --disableplugin=fastestmirror -y --enablerepo=epel-testing install ansible &&
+  yum -y update && yum clean all; (exit $?)'
+
+- docker exec --tty "$(cat ${container_id})" env TERM=xterm bash -c 
+  'ansible localhost -c local -m ping; (exit $?)'
+
+after_success:
+  - docker commit -m "Ansiblized" -a "Jonathan Davila" $(cat ${container_id}) nousdefions/$distro:latest 
+  - docker login --username nousdefions --password $DOCKERHUB_PASS
+  - docker push nousdefions/$distro
 
 after_script:
-- docker exec --tty "$(cat ${container_id})" env TERM=xterm subscription-manager unregister 
+  - docker exec --tty "$(cat ${container_id})" env TERM=xterm subscription-manager unregister 
 
