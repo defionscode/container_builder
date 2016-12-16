@@ -14,7 +14,7 @@ script:
 - docker run --detach registry.access.redhat.com/$distro "${init}" > "${container_id}"
 
 - docker exec --tty "$(cat ${container_id})" env TERM=xterm RH_PASS=$RH_PASS bash -c 
-  'subscription-manager register --username $RH_USER --password $RH_PASS --autosubscribe; (exit $?)'
+  "subscription-manager register --username $RH_USER --password $RH_PASS --autosubscribe; (exit $?)"
 
 - docker exec --tty "$(cat ${container_id})" env TERM=xterm bash -c 
   'yum install -y $epel; (exit $?)'
