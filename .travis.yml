@@ -1,14 +1,21 @@
 services: docker
 env:
+  matrix:
   - distro: rhel6
-    init: /sbin/init
-    run_opts: ""
-
+    init: "/sbin/init"
+    run_opts: ''
+  - secure: iZmoeWW3bPy8c6eDtUk/js7Syj65BVWNSdi70u2TkKoSe5dN3at0kewqynMGPU4LWFaJSUipaTNOZ7jSjFjFoaUDOwloLBjtyTZXyz2rwyTf7/sG+qAU5peRhSE4DgB6YvxNOBKK5wfY2Ke/Bl1DxcYA5nHawzHHYYDDnGAIOUjlKSTdpsS7dFsNZgrjcAVM2Mxnrr3w6WAPjbyFjFhGp3hGXR4MdG/emJkykrVM6cpIso2Afb4Y5lva+AmsNbPZI4lYhU3QowWceIpl34AT97CrX4EOQx6llNodcRpdMta/25jRhzc2kcHK3qTraS+BMrS72gysSCsCqmgl7LllkEPLkS0zF/4Crf6Yz+exKSHocYHJuI4VHATCVMzzsGRc1f7015dHrGhH/vRR4wrHUofQAS2R9HeYFzXeQeLNIKEaXIVIbYxC2kmwQnGZNJGjdF/8fb+PcuQoDDjtxrlGYo63x59tS3vUL1EROWAhLifcyiO0knv1O1djpJrBNLjoHdgMBCe1+V9s5FbPXB356k7MZDBRMwLEHM/KrtOh+jVyV1aKV5cTPs5xp9D0Pp/avVZ1an1MGcC58Z+bEgwykdk36rUQqORRzxZOwAXWhV2YOMc+fp4busXVf5EdUtR+KMomyptUObLmji+Q6mtOBv7OizIRuDQ/UqJLQC1CLTg=
 before_install:
-  - 'docker pull registry.access.redhat.com/rhel6'
-  - container_id=$(mktemp)
-  - 'docker run --detach registry.access.redhat.com/rhel6 "${init}" > "${container_id}"'
-  - 'docker exec --tty "$(cat ${container_id})" env TERM=xterm echo "hello world"'
-  - exit 0
+- docker pull registry.access.redhat.com/rhel6
 
+script:
+- container_id=$(mktemp)
+- docker run --detach registry.access.redhat.com/rhel6 "${init}" > "${container_id}"
+- docker exec --tty "$(cat ${container_id})" env TERM=xterm echo "hello world"
+- docker exec --tty "$(cat ${container_id})" env TERM=xterm subscription-manager register --username jonathan-9 --password $RH_PASS
+- docker exec --tty "$(cat ${container_id})" env TERM=xterm yum install -y nmap 
+- exit 0
+
+after_script:
+- docker exec --tty "$(cat ${container_id})" env TERM=xterm subscription-manager unregister 
 
