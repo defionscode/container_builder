@@ -13,11 +13,11 @@ script:
 
 - docker run --detach registry.access.redhat.com/$distro "${init}" > "${container_id}"
 
-- docker exec --tty "$(cat ${container_id})" env TERM=xterm $RH_PASS bash -c 
+- docker exec --tty "$(cat ${container_id})" env TERM=xterm RH_USER=$RH_USER RH_PASS=$RH_PASS bash -c 
   "subscription-manager register --username $RH_USER --password $RH_PASS --autosubscribe; (exit $?)"
 
 - docker exec --tty "$(cat ${container_id})" env TERM=xterm epel=$epel bash -c 
-  "yum install -y $epel; (exit $?)"
+  "yum install -y $epel; (exit $?) && yum -y update"
 
 - docker exec --tty "$(cat ${container_id})" env TERM=xterm bash -c
   'yum --disableplugin=fastestmirror -y --enablerepo=epel-testing install ansible &&
