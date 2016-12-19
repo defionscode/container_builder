@@ -27,8 +27,8 @@ script:
   'ansible localhost -c local -m ping; (exit $?)'
 
 after_success:
-  - docker commit -m "Ansiblized" -a "Jonathan Davila" $(cat ${container_id}) nousdefions/$distro:latest 
   - docker login --username nousdefions --password $DOCKERHUB_PASS
+  - docker commit -m "Ansiblized" -a "Jonathan Davila" $(cat ${container_id}) nousdefions/ansible_$distro:latest 
   - docker push nousdefions/ansible_$distro
 
 after_script:
