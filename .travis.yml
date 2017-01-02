@@ -5,13 +5,18 @@ env:
       epel: "https://dl.fedoraproject.org/pub/epel/epel-release-latest-6.noarch.rpm"
       init: "/sbin/init"
       run_opts: ''
+    - distro: rhel7
+      epel: "https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm"
+      init: "/usr/lib/systemd/systemd"
+      run_opts: "--privileged --volume=/sys/fs/cgroup:/sys/fs/cgroup:ro"
+
 before_install:
 - docker pull registry.access.redhat.com/$distro
 
 script:
 - container_id=$(mktemp)
 
-- docker run --detach registry.access.redhat.com/$distro "${init}" > "${container_id}"
+- docker run --detach ${run_opts} registry.access.redhat.com/$distro "${init}" > "${container_id}"
 
 - docker exec --tty "$(cat ${container_id})" env TERM=xterm RH_USER=$RH_USER RH_PASS=$RH_PASS bash -c 
   "subscription-manager register --username $RH_USER --password $RH_PASS --autosubscribe; (exit $?)"
